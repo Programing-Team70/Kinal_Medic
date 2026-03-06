@@ -1,0 +1,48 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  user-student-service:
+    build: ./user-student-service
+    ports:
+      - "3001:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/students_db
+    depends_on:
+      - mongo
+
+  medical-records-service:
+    build: ./medical-records-service
+    ports:
+      - "3002:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/medical_db
+    depends_on:
+      - mongo
+
+  #inventory-service:
+  # build: ./inventory-service
+  # ports:
+  #  - "3003:3000"
+  #environment:
+  #  - MONGO_URI=mongodb://mongo:27017/inventory_db
+  #depends_on:
+  # - mongo
+
+
+  #  availability-service:
+  #   build: ./availability-service
+  #  ports:
+  #   - "3004:3000"
+  # environment:
+  #  - MONGO_URI=mongodb://mongo:27017/availability_db
+  #depends_on:
+  # - mongo
+
+volumes:
+  mongo_data:
