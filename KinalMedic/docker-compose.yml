@@ -57,8 +57,8 @@ services:
       - "3005:3000"
     environment:
       - PORT=3000
-      - EMAIL_USER=tu-correo@gmail.com
-      - EMAIL_PASS=tu-clave-de-aplicacion-de-16-digitos
+      - EMAIL_USER=programingteam70@gmail.com
+      - EMAIL_PASS=fstc wpzh frpp fooi
     depends_on:
       - mongo
 
