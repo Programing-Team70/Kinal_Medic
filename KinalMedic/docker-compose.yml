@@ -25,24 +25,42 @@ services:
     depends_on:
       - mongo
 
-  #inventory-service:
-  # build: ./inventory-service
-  # ports:
-  #  - "3003:3000"
-  #environment:
-  #  - MONGO_URI=mongodb://mongo:27017/inventory_db
-  #depends_on:
-  # - mongo
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - "3003:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/inventory_db
+      - JWT_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
+      - JWT_ISSUER=KinalMedic
+      - JWT_AUDIENCE=KinalMedic
+    depends_on:
+      - mongo
 
+  availability-service:
+    build: 
+      context: ./availability-service
+      dockerfile: Dockerfile
+    ports:
+      - "3004:8080"
+    environment:
+      - JWT_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
+      - ConnectionStrings__MongoDb=mongodb://mongo:27017
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - mongo
 
-  #  availability-service:
-  #   build: ./availability-service
-  #  ports:
-  #   - "3004:3000"
-  # environment:
-  #  - MONGO_URI=mongodb://mongo:27017/availability_db
-  #depends_on:
-  # - mongo
+  notification-service:
+    build: ./notification-service
+    container_name: kinalmedic-notification-service
+    ports:
+      - "3005:3000"
+    environment:
+      - PORT=3000
+      - EMAIL_USER=tu-correo@gmail.com
+      - EMAIL_PASS=tu-clave-de-aplicacion-de-16-digitos
+    depends_on:
+      - mongo
 
 volumes:
   mongo_data:
