@@ -49,7 +49,6 @@ Base URL: `http://localhost:3001/api/students`
 | `GET`| `/all`| Listar todos los alumnos registrados | Admin |
 | `GET`| `/carnet/{carnet}`| Buscar alumno específico por carnet | Admin |
 
----
 
 ## Endpoints API (medical-records-service)
 Base URL: `http://localhost:3002/api/records`
@@ -60,29 +59,38 @@ Base URL: `http://localhost:3002/api/records`
 | `POST` | `/add` | Crear nuevo historial clínico | Admin |
 | `GET` | `/{carnet}` | Consultar historial clínico por carnet | Admin |
 
----
 
 ## Endpoints API (inventory-service)
 Base URL: `http://localhost:3003/inv`
 
+### Inventory Service (`/inventory`)
 | Método | Ruta | Descripción |Acceso|
+|--------|------|-------------|------|
 | `GET` | `/medicine` | Visualizar todo el inventario | User |
 | `GET` | `/medicine/{id}` | Obtener detalles por ID específico| User |
 | `POST` | `/medicine` | Registrar un nuevo medicamento | Admin |
 | `PUT` | `/medicine/{id}` | Actualizar información de medicamento | Admin |
 
---- 
-
 ## Endpoints API (availability-service)
 Base URL: `http://localhost:3004/api/availability`
 
+### Availability Service (`/availability`)
 | Método | Ruta | Descripción |Acceso|
+|--------|------|-------------|------|
 | `GET` | `/all-teachers` | Ver el estado de todo el person | Global |
 | `POST` | `/scan-qr` | Actualizar ubicación | Admin |
 
----
+## Endpoints API (Notification Service)
+Base URL: `http://localhost:3005/api/notifications`
+
+### Notification Service (`/notifications`)
+| Método | Ruta | Descripción |Acceso|
+|--------|------|-------------|------|
+| `POST` | `/request-help` | Envía una alerta de emergencia al médico | User |
 
 ### Modelos de Request
+
+---
 
 ## User-Student-Service
 Base URL: `http://localhost:3001/api/students`
@@ -164,6 +172,21 @@ Base URL: `http://localhost:3004/api/availability`
 {
   "status": 5,
   "description": "En Parqueo"
+}
+```
+---
+
+
+## Availability-Service
+Base URL: `http://localhost:3005/api/notifications`
+
+#### Notification Service (`/notifications`)
+```json
+{
+    "doctorEmail": "dlucas-2024332@kinal.edu.gt",
+    "studentName": "Dany Lucas",
+    "studentCarnet": "2024332",
+    "description": "He experimentado un mareo fuerte mientras estaba en el taller de informática."
 }
 ```
 ---
@@ -341,51 +364,14 @@ user-student-service/
 
 ### Variables de Entorno 
 
-#### inventory-services
-
-Crear archivo `.env` en la raíz del proyecto:
-
-```env
-PORT=3000
-MONGO_URI=mongodb://mongo:27017/inventory_db
-
-JWT_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
-JWT_EXPIRES_IN=1h
-JWT_ISSUER=KinalMedic
-JWT_AUDIENCE=KinalMedic
-
-NODE_TLS_REJECT_UNAUTHORIZED=0
-```
-
-#### medical-records-service
-
-Crear archivo `.env` en la raíz del proyecto:
-
-```env
-PORT=3000
-MONGO_URI=mongodb://mongo:27017/medical_db
-TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
-```
-#### notification-service
-
 Crear archivo `.env` en la raíz del proyecto:
 
 ```env
 PORT=3000
 MONGO_URI=mongodb://mongo:27017/notifications_db
 TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
-EMAIL_USER=tu-correo@gmail.com
-EMAIL_PASS=tu-clave-de-aplicacion-de-16-digitos
-```
-
-#### user-student-service
-
-Crear archivo `.env` en la raíz del proyecto:
-
-```env
-PORT=3000
-MONGO_URI=mongodb://mongo:27017/students_db
-TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
+EMAIL_USER=programingteam70@gmail.com
+EMAIL_PASS=fstc wpzh frpp fooi
 ```
 ---
 
