@@ -50,10 +50,20 @@ builder.Services.AddSingleton<AvailabilityRepository>();
 builder.Services.AddScoped<AvailabilityManager>();
 builder.Services.AddControllers();
 
+builder.Services.AddSwaggerGen();
+builder.Services.AddEndpointsApiExplorer();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment()) {
     Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+}
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseAuthentication();
