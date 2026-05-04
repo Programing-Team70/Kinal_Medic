@@ -1,24 +1,25 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
 import { dbConnection } from "./config/db.js";
 import medicineRoutes from "./src/routes/medicine.routes.js";
+import { swaggerDocs, swaggerUi } from './config/documentation.js';
 
-dotenv.config();
+
 
 const app = express();
 dbConnection();
 
-app.use(cors({
-    origin: "*",
-}));
-
+app.use(cors({ origin: "*" }));
 app.use(helmet());
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+app.use(morgan("dev"));
 app.use(express.json({ limit: "10kb" }));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use("/inv/medicine", medicineRoutes);
 
@@ -53,4 +54,5 @@ const PORT = process.env.PORT || 3003;
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto: ${PORT}`);
+    console.log(`Swagger disponible en: http://localhost:${PORT}/api-docs/`);
 });
