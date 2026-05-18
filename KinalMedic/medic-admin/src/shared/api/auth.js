@@ -12,7 +12,3 @@ export const getAllUsers = async () => {
 export const register = async (data) => {
   return await axiosAdmin.post('/register', data);
 };
-
-export const verifyEmail = async (token) => {
-  return await axiosAuth.post('/auth/verify-email', { token });
-};

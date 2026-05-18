@@ -1,5 +1,7 @@
-import axios from '../utils/axios.js'; // Regresamos a tu archivo original
+import axios from '../utils/axios.js';
 import { useAuthStore } from '../../features/auth/store/authStore.js';
+
+// Implementación de .env para las rutas correctas del servicio user.
 
 export const axiosAuth = axios.create({
   baseURL: import.meta.env.VITE_AUTH_URL,
@@ -14,12 +16,10 @@ export const axiosAdmin = axios.create({
 });
 
 const injectToken = (config) => {
-  // Obtenemos el estado completo
   const state = useAuthStore.getState();
   const token = state.token;
 
   if (token) {
-    // IMPORTANTE: Asegúrate de que no haya espacios extra y que el formato sea exacto
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
