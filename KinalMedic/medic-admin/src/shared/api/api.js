@@ -27,3 +27,11 @@ const injectToken = (config) => {
 
 axiosAdmin.interceptors.request.use(injectToken);
 axiosAuth.interceptors.request.use(injectToken);
+
+export const axiosNotification = axios.create({
+  baseURL: import.meta.env.VITE_NOTIFICATION_URL,
+  timeout: 8000,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+axiosNotification.interceptors.request.use(injectToken);
