@@ -13,7 +13,7 @@ export const Navbar = () => {
             className='h-8 md:h-10 w-auto object-contain'
           />
           <h5 className='text-xl font-bold text-[#1A237E]'>
-            Kinal_Medic 
+            Kinal Medic
           </h5>
         </div>
         <AvatarUser />
