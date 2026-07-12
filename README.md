@@ -2,7 +2,7 @@
 
 **Nota**: Este proyecto ha sido desarrollado por el equipo de desarrollo Programming Team utilizando como base técnica y educativa la arquitectura de microservicios y las mejores prácticas de desarrollo web proporcionada por el Catedrático Braulio Echeverría (PEM) del curso IN6AV, Kinal Guatemala 2026.
 
-**Retraso en la entrega:** Durante el desarrollo del proyecto se presentaron inconvenientes que generaron un retraso en la planificación original. Como consecuencia, los Sprints 3 y 4 no fueron entregados en sus fechas establecidas, sino que se integraron y entregaron en conjunto con los Sprints 5 y 6 en la última entrega. Esto impactó el cronograma previsto, pero permitió consolidar de manera completa el trabajo de dichas etapas.
+**Retraso en la entrega:** Durante el desarrollo del proyecto se presentaron inconvenientes que generaron un retraso en la planificación original. Como consecuencia, los Sprints 3 y 4 no fueron entregados en sus fechas establecidas, sino que se integraron y entregaron en conjunto con los Sprints 5 y 6 en la última entrega. Esto impactó el cronograma previsto, pero permitió consolidar de manera completa el trabajo de dichas etapas.[Ver Nota de Notificación de Atrasos](NOTIFICACION.md)
 
 ## Descripción:
 Este repositorio contiene el núcleo central de **Kinal_Medic**, una plataforma integral diseñada para la digitalización y optimización del área de enfermería institucional. El sistema funciona como un ecosistema unificado que conecta a estudiantes, encargados de salud y administración, permitiendo desde el monitoreo de disponibilidad del personal médico hasta la gestión de historiales clínicos y control de inventario de medicamentos.
