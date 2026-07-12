@@ -1,5 +1,8 @@
 # Kinal_Medic - Sistema de Gestión de Enfermería
->**Nota**: Este proyecto ha sido desarrollado por el equipo de desarrollo Programming Team utilizando como base técnica y educativa la arquitectura de microservicios y las mejores prácticas de desarrollo web proporcionada por el Catedrático Braulio Echeverría (PEM) del curso IN6AV, Kinal Guatemala 2026.
+
+**Nota**: Este proyecto ha sido desarrollado por el equipo de desarrollo Programming Team utilizando como base técnica y educativa la arquitectura de microservicios y las mejores prácticas de desarrollo web proporcionada por el Catedrático Braulio Echeverría (PEM) del curso IN6AV, Kinal Guatemala 2026.
+
+**Retraso en la entrega:** Durante el desarrollo del proyecto se presentaron inconvenientes que generaron un retraso en la planificación original. Como consecuencia, los Sprints 3 y 4 no fueron entregados en sus fechas establecidas, sino que se integraron y entregaron en conjunto con los Sprints 5 y 6 en la última entrega. Esto impactó el cronograma previsto, pero permitió consolidar de manera completa el trabajo de dichas etapas.
 
 ## Descripción:
 Este repositorio contiene el núcleo central de **Kinal_Medic**, una plataforma integral diseñada para la digitalización y optimización del área de enfermería institucional. El sistema funciona como un ecosistema unificado que conecta a estudiantes, encargados de salud y administración, permitiendo desde el monitoreo de disponibilidad del personal médico hasta la gestión de historiales clínicos y control de inventario de medicamentos.
@@ -24,73 +27,97 @@ Este repositorio contiene el núcleo central de **Kinal_Medic**, una plataforma 
 
 ### 4. Gestión de Inventario y Notificaciones
 * **Control de Stock:** Registro automatizado de medicamentos con alertas de stock bajo para evitar el desabastecimiento.
-* **Disparador de Alertas:**  Sistema de notificaciones automáticas vía correo electrónico a padres de familia o encargados tras una atención de emergencia.
+* **Disparador de Alertas:** Sistema de notificaciones automáticas vía correo electrónico a padres de familia o encargados tras una atención de emergencia.
 * **Registro de Suministros:** Trazabilidad completa de qué insumo fue utilizado, por quién y en qué fecha.
 
-## Tecnologías utilizadas
-- Componente Tecnología 
-- Tiempo de ejecución Node.js y .Net
-- Lenguaje JavaScript / C#
-- Bases de Datos MongoDB / SQL Server
-- Documentación	Postman
+---
+
+## Tecnologías Utilizadas
+
+| Componente | Tecnología |
+|---|---|
+| Tiempo de ejecución | Node.js / .NET 8 |
+| Lenguaje | JavaScript / C# |
+| Bases de Datos | MongoDB / SQL Server |
+| Frontend | React + Vite |
+| Documentación | Postman / Swagger |
+
+---
+
+## Ramas del Proyecto (Jira / Sprints)
+
+| Rama | Servicio |
+|---|---|
+| `KM_DOCKER-001` | Dockerización |
+| `KM-001` | medic-admin |
+| `KM-002` | user-student-service |
+| `KM-003` | medical-records-service |
+| `KM-004` | availability-service |
+| `KM-005` | inventory-service |
+| `KM-006` | notification-service |
+
+---
 
 ## Endpoints API (user-student-service)
 Base URL: `http://localhost:3001/api/students`
 
+### Autenticación y Alumnos (`/api/students`)
 
-### Medicamentos (`/medicine`)
-
-| Método | Ruta | Descripción |Acceso|
-|--------|------|-------------|------|
+| Método | Ruta | Descripción | Acceso |
+|--------|------|-------------|--------|
 | `POST` | `/login` | Iniciar sesión en el sistema | Global |
 | `POST` | `/register` | Registro inicial de alumno | Global |
 | `POST` | `/create` | Registro administrativo de alumnos | Admin |
-| `GET`| `/me`| Obtener mi perfil de usuario actual | User |
-| `GET`| `/all`| Listar todos los alumnos registrados | Admin |
-| `GET`| `/carnet/{carnet}`| Buscar alumno específico por carnet | Admin |
+| `GET` | `/me` | Obtener mi perfil de usuario actual | User |
+| `GET` | `/all` | Listar todos los alumnos registrados | Admin |
+| `GET` | `/carnet/{carnet}` | Buscar alumno específico por carnet | Admin |
+| `PUT` | `/update/{id}` | Actualizar datos de un usuario | Admin |
+| `DELETE` | `/delete/{id}` | Eliminar un usuario del sistema | Admin |
 
+---
 
 ## Endpoints API (medical-records-service)
 Base URL: `http://localhost:3002/api/records`
 
-### Disponibilidad del Personal (`/availability`)
-| Método | Ruta | Descripción |Acceso|
-|--------|------|-------------|------|
+### Registros Clínicos (`/api/records`)
+
+| Método | Ruta | Descripción | Acceso |
+|--------|------|-------------|--------|
 | `POST` | `/add` | Crear nuevo historial clínico | Admin |
 | `GET` | `/{carnet}` | Consultar historial clínico por carnet | Admin |
+| `PUT` | `/update/{id}` | Actualizar un registro médico existente | Admin |
+| `DELETE` | `/delete/{id}` | Eliminar un registro médico | Admin |
 
+---
 
 ## Endpoints API (inventory-service)
 Base URL: `http://localhost:3003/inv`
 
-### Inventory Service (`/inventory`)
-| Método | Ruta | Descripción |Acceso|
-|--------|------|-------------|------|
-| `GET` | `/medicine` | Visualizar todo el inventario | User |
-| `GET` | `/medicine/{id}` | Obtener detalles por ID específico| User |
+### Medicamentos (`/inv/medicine`)
+
+| Método | Ruta | Descripción | Acceso |
+|--------|------|-------------|--------|
+| `GET` | `/medicine` | Visualizar todo el inventario | Admin |
+| `GET` | `/medicine/{id}` | Obtener detalles por ID específico | Admin |
 | `POST` | `/medicine` | Registrar un nuevo medicamento | Admin |
 | `PUT` | `/medicine/{id}` | Actualizar información de medicamento | Admin |
+| `PATCH` | `/medicine/{id}` | Desactivar un medicamento del inventario | Admin |
+
+---
 
 ## Endpoints API (availability-service)
 Base URL: `http://localhost:3004/api/availability`
 
-### Availability Service (`/availability`)
-| Método | Ruta | Descripción |Acceso|
-|--------|------|-------------|------|
-| `GET` | `/all-teachers` | Ver el estado de todo el person | Global |
-| `POST` | `/scan-qr` | Actualizar ubicación | Admin |
+### Disponibilidad del Personal (`/api/availability`)
 
-## Endpoints API (Notification Service)
-Base URL: `http://localhost:3005/api/notifications`
-
-### Notification Service (`/notifications`)
-| Método | Ruta | Descripción |Acceso|
-|--------|------|-------------|------|
-| `POST` | `/request-help` | Envía una alerta de emergencia al médico | User |
-
-### Modelos de Request
+| Método | Ruta | Descripción | Acceso |
+|--------|------|-------------|--------|
+| `GET` | `/all-teachers` | Ver el estado de todo el personal | Global |
+| `POST` | `/scan-qr` | Actualizar ubicación mediante QR | Admin |
 
 ---
+
+### Modelos de Request
 
 ## User-Student-Service
 Base URL: `http://localhost:3001/api/students`
@@ -127,6 +154,18 @@ Base URL: `http://localhost:3001/api/students`
   "role": "student"
 }
 ```
+
+#### Actualizar Usuario (`/update/{id}`)
+> **Nota:** Requiere Token de Administrador.
+
+```json
+{
+  "name": "Juan Lopez Actualizado",
+  "email": "ljuan.updated@kinal.edu.gt",
+  "carrera": "Informática"
+}
+```
+
 ---
 
 ## Medical-Records-Service
@@ -143,12 +182,23 @@ Base URL: `http://localhost:3002/api/records`
 }
 ```
 
---- 
+#### Actualizar Registro Médico (`/update/{id}`)
+> **Nota:** Requiere Token de Administrador.
+```json
+{
+  "description": "Paciente presenta mejoría",
+  "medication": "Ibuprofeno 400mg cada 12 horas",
+  "vitals": "Presión 118/78, Temperatura 37.1"
+}
+```
+
+---
 
 ## Inventory-Service
 Base URL: `http://localhost:3003/inv`
 
-#### Crear Medicamento (`edicine`)
+#### Crear Medicamento (`/medicine`)
+> **Nota:** Requiere Token de Administrador.
 ```json
 {
   "name": "Paracetamol",
@@ -162,7 +212,7 @@ Base URL: `http://localhost:3003/inv`
 }
 ```
 
---- 
+---
 
 ## Availability-Service
 Base URL: `http://localhost:3004/api/availability`
@@ -174,237 +224,368 @@ Base URL: `http://localhost:3004/api/availability`
   "description": "En Parqueo"
 }
 ```
----
 
-
-## Availability-Service
-Base URL: `http://localhost:3005/api/notifications`
-
-#### Notification Service (`/notifications`)
-```json
-{
-    "doctorEmail": "dlucas-2024332@kinal.edu.gt",
-    "studentName": "Dany Lucas",
-    "studentCarnet": "2024332",
-    "description": "He experimentado un mareo fuerte mientras estaba en el taller de informática."
-}
-```
 ---
 
 ## 📁 Estructura del Proyecto
+
+```
+medic-admin/
+├── public/
+│   ├── favicon.svg
+│   └── icons.svg
+│
+├── src/
+│   ├── app/
+│   │   ├── layouts/
+│   │   │   └── DashboardPage.jsx         # Layout principal del dashboard
+│   │   ├── router/
+│   │   │   ├── AppRouter.jsx             # Enrutamiento principal
+│   │   │   ├── ProtecterRoute.jsx        # Rutas protegidas por autenticación
+│   │   │   └── RoleGuard.jsx             # Control de acceso por rol
+│   │   ├── App.jsx                       # Componente raíz
+│   │   └── main.jsx                      # Punto de entrada React
+│   │
+│   ├── assets/
+│   │   └── img/                          # Recursos gráficos e imágenes
+│   │
+│   ├── features/
+│   │   ├── auth/
+│   │   │   ├── components/               # LoginForm, RegisterForm, ConfirmModal, Spinner
+│   │   │   ├── pages/
+│   │   │   │   └── AuthPage.jsx
+│   │   │   └── store/
+│   │   │       ├── authStore.js
+│   │   │       └── uiStore.js
+│   │   │
+│   │   ├── availability/
+│   │   │   ├── components/
+│   │   │   │   └── state.medical.jsx
+│   │   │   ├── pages/
+│   │   │   │   └── AvailabilityPage.jsx
+│   │   │   └── store/
+│   │   │       └── availabilityStore.js
+│   │   │
+│   │   ├── inventory/
+│   │   │   ├── components/
+│   │   │   │   └── inventory.medical.jsx
+│   │   │   ├── pages/
+│   │   │   │   └── InventoryPage.jsx
+│   │   │   └── store/
+│   │   │       └── useMedicineStore.js
+│   │   │
+│   │   ├── medical/
+│   │   │   ├── components/
+│   │   │   │   └── register.medic.jsx
+│   │   │   ├── pages/
+│   │   │   │   └── MedicalRecordsPage.jsx
+│   │   │   └── store/
+│   │   │       └── medicalRecordStore.js
+│   │   │
+│   │   ├── notification/
+│   │   │   ├── components/
+│   │   │   │   └── notification.medical.jsx
+│   │   │   └── store/
+│   │   │       └── notificationStore.js
+│   │   │
+│   │   └── users/
+│   │       ├── components/
+│   │       │   ├── CreateUserModal.jsx
+│   │       │   └── Users.jsx
+│   │       └── store/
+│   │           ├── adminStore.js
+│   │           └── useUserManagementStore.js
+│   │
+│   ├── shared/
+│   │   ├── api/
+│   │   │   ├── admin.js
+│   │   │   ├── api.js
+│   │   │   ├── auth.js
+│   │   │   └── index.js
+│   │   ├── components/
+│   │   │   └── layout/
+│   │   │       ├── DashboardContainer.jsx
+│   │   │       ├── Navbar.jsx
+│   │   │       └── Sidebar.jsx
+│   │   │   └── ui/
+│   │   │       └── AvatarUser.jsx
+│   │   └── utils/
+│   │       ├── axios.js
+│   │       ├── formatter.js
+│   │       └── toast.js
+│   │
+│   └── styles/
+│       └── index.css
+│
+├── .env                                  # Variables de entorno
+├── eslint.config.js                      # Configuración de ESLint
+├── index.html                            # HTML base
+├── package.json                          # Dependencias y scripts
+└── vite.config.js                        # Configuración de Vite
+```
+
+---
+
 ```
 availability-service/
 ├── src/
-│   ├── AuthService.Api/              # Capa de presentación
-│   │   ├── bin/             
-│   │   ├── Controllers/              # Controladores REST
-│   │   ├── obj/                      
-│   │   ├── Properties/               # Configuraciones y extensiones
-│   │   └── Program.cs                # Punto de entrada
+│   ├── AvaibleService.Api/               # Capa de presentación
+│   │   ├── Controllers/                  # Controladores REST
+│   │   │   └── AvailabilityController.cs
+│   │   ├── Properties/                   # Configuraciones de launch
+│   │   │   └── launchSettings.json
+│   │   ├── appsettings.json
+│   │   ├── appsettings.Development.json
+│   │   └── Program.cs                    # Punto de entrada
 │   │
-│   ├── AuthService.Application/      
-│   │   ├── bin/                      
-│   │   ├── DTOs/                     
-|   |   ├── Hubs/               
-│   │   ├── obj/              
-│   │   └── Services/                 # Implementación de servicios
+│   ├── AvaibleService.Application/       # Capa de aplicación
+│   │   ├── Dto/
+│   │   │   └── AvailabilityRequest.cs
+│   │   ├── Hubs/
+│   │   │   └── AvailabilityHub.cs        # Hub de SignalR
+│   │   └── Services/
+│   │       └── AvailabilityManager.cs    # Implementación de servicios
 │   │
-│   ├── AuthService.Domain/           # Capa de dominio
-│   │   ├── bin/   
-│   │   ├── Constants/                # Constantes del dominio
-│   │   ├── Entities/                 # Entidades del dominio
-│   │   ├── Enums/                    # Enumeraciones
-│   │   ├── Interfaces/               # Interfaces de repositorios
-│   │   └── obj/                 
+│   ├── AvaibleService.Domain/            # Capa de dominio
+│   │   ├── Entities/
+│   │   │   └── TeacherAvailability.cs    # Entidades del dominio
+│   │   └── Enums/
+│   │       └── TeacherStatus.cs          # Enumeraciones de estado
 │   │
-│   └── AuthService.Persistence/      # Capa de persistencia
-│       ├── bin/   
-│       ├── Data/                     # DbContext y configuraciones
-│       ├── Migrations/               # Migraciones de EF Core
-│       ├── obj/   
-│       └── Repositories/             # Implementación de repositorios
+│   └── AvaibleService.Persistence/       # Capa de persistencia
+│       └── Repositories/
+│           └── AvailabilityRepository.cs # Implementación de repositorios
 │
-├── AuthService.sln                   # Solución de Visual Studio
-├── Dockerfile                        # Configuración de contenedor
-└── global.json                       # Versión de .NET
+├── AvaibleService.sln                    # Solución de Visual Studio
+├── Dockerfile                            # Configuración de contenedor
+└── global.json                           # Versión de .NET
 ```
----
 
+---
 
 ```
 inventory-service/
-├── configs/
-│   ├── app.js                          # Configuración principal del servidor
-|   ├── configuration.js                # Configuración general
-│   ├── db.js                           # Conexión a MongoDB
-|   ├── helmets.js                      # Configuración de Helmet
-|   └── rateLimit.js                    # Limitar las peticiones
+├── config/
+│   ├── app.js                            # Configuración principal del servidor
+│   ├── configuration.js                  # Configuración general
+│   ├── db.js                             # Conexión a MongoDB
+│   ├── documentation.js                  # Configuración de Swagger
+│   ├── helmets.js                        # Configuración de Helmet
+│   └── rateLimits.js                     # Límite de peticiones
 │
 ├── middlewares/
-│   ├── JWT.middleware.js               # Validación de tokens
-|   └── role.middleware.js              # Validación de roles (Admin/User)
+│   ├── JWT.middleware.js                 # Validación de tokens
+│   └── role.middleware.js                # Validación de roles (Admin/User)
 │
 ├── src/
-│   ├── Controller/                     # Lógica de las rutas 
-│   │   └── medicine.controller/        
+│   ├── controller/
+│   │   └── medicine.controller.js        # Lógica de las rutas
 │   │
-│   ├── models/                         # Esquemas de Mongoose
-│   │   └── medicine.model/             
+│   ├── models/
+│   │   └── medicine.model.js             # Esquemas de Mongoose
 │   │
-│   ├── routes/                         # Definición de Endpoints
-│   │   └── medicine.routes/           
+│   ├── routes/
+│   │   └── medicine.routes.js            # Definición de Endpoints
 │   │
-│   └── service/                        
-│       └── medicine.service/           # Lógica de negocio
+│   └── service/
+│       └── medicine.service.js           # Lógica de negocio
 │
-├── .env                                # Variables de entorno
-├── .gitignore                          # Archivos ignorados por Git
-├── Dockerfile                          # Configuración de contenedor
-├── index.js                            # Punto de entrada
-├── package.json                        # Dependencias y scripts
-└── pnpm-lock.yaml                      # Lock file de pnpm
+├── .env                                  # Variables de entorno
+├── .gitignore                            # Archivos ignorados por Git
+├── Dockerfile                            # Configuración de contenedor
+├── index.js                              # Punto de entrada
+└── package.json                          # Dependencias y scripts
 ```
+
 ---
 
 ```
 medical-records-service/
-├── configs/
-│    └── db.js                          # Conexión a MongoDB
+├── config/
+│   ├── db.js                             # Conexión a MongoDB
+│   └── documentation.js                  # Configuración de Swagger
 │
 ├── middlewares/
-|   └── auth.js                         # Validación de acceso
-│
-├── node_modules/
+│   └── auth.js                           # Validación de acceso
 │
 ├── src/
-│   ├── Controller/                     
-│   │   └── record.controller/          # Lógica de las rutas
+│   ├── controller/
+│   │   └── record.controller.js          # Lógica de las rutas
 │   │
-│   ├── models/                         
-│   │   └── record.model/               # Esquemas de Mongoose
+│   ├── models/
+│   │   └── record.model.js               # Esquemas de Mongoose
 │   │
-│   └── routes/                         
-│       └── record.model/               # Definición de Endpoints
-├── .env                                # Variables de entorno
-├── .gitignore                          # Archivos ignorados por Git
-├── Dockerfile                          # Configuración de contenedor
-├── index.js                            # Punto de entrada
-├── package-lock.json                   # Dependencias y scripts
-└── package.json                        # Dependencias y scripts
+│   └── routes/
+│       └── record.routes.js              # Definición de Endpoints
+│
+├── .env                                  # Variables de entorno
+├── .gitignore                            # Archivos ignorados por Git
+├── Dockerfile                            # Configuración de contenedor
+├── index.js                              # Punto de entrada
+└── package.json                          # Dependencias y scripts
 ```
+
 ---
 
 ```
 notification-service/
-├── configs/
-│    ├── db.js                          # Conexión a MongoDB
-│    └── nodemailer.js                  # Configuración de envío de correos        
+├── config/
+│   ├── db.js                             # Conexión a MongoDB
+│   ├── documentation.js                  # Configuración de Swagger
+│   └── nodemailer.js                     # Configuración de envío de correos
 │
 ├── middlewares/
-|   └── validate-request.js             
+│   └── validate-request.js               # Validación de peticiones
 │
 ├── src/
-│   ├── Controller/                     
-│   │   └── notification.controller/        
+│   ├── controller/
+│   │   └── notification.controller.js    # Lógica de las rutas
 │   │
-│   ├── routes/                         
-│   │   └── notification.routes/             
+│   ├── routes/
+│   │   └── notification.routes.js        # Definición de Endpoints
 │   │
-│   └── models/                         
-│       └── email.service/              # Lógica de envío de correos
-├── .env                                # Variables de entorno
-├── .gitignore                          # Archivos ignorados por Git
-├── Dockerfile                          # Archivos ignorados por Git
-├── index.js                            # Punto de entrada
-└── package.json                        # Dependencias y scripts
+│   └── service/
+│       └── email.service.js              # Lógica de envío de correos
+│
+├── .env                                  # Variables de entorno
+├── .gitignore                            # Archivos ignorados por Git
+├── Dockerfile                            # Configuración de contenedor
+├── index.js                              # Punto de entrada
+└── package.json                          # Dependencias y scripts
 ```
+
 ---
 
 ```
 user-student-service/
-├── configs/
-│   └──  db.js                          # Conexión a MongoDB                        
+├── config/
+│   ├── db.js                             # Conexión a MongoDB
+│   └── documentation.js                  # Configuración de Swagger
 │
 ├── middlewares/
-|   └── auth.js                         # Validación de autenticación
-│
-├── node_modules/
+│   └── auth.js                           # Validación de autenticación
 │
 ├── src/
-│   ├── Controller/
-│   │   ├── auth.controller/                    
-│   │   └── student.controller/        
+│   ├── controller/
+│   │   ├── auth.controller.js            # Lógica de autenticación
+│   │   └── student.controller.js         # Lógica de gestión de alumnos
 │   │
-│   ├── models/                         
-│   │   └── student.model/             
+│   ├── models/
+│   │   └── student.model.js              # Esquemas de Mongoose
 │   │
-│   ├── routes/                         
-│   │   └── student.routes/
+│   ├── routes/
+│   │   └── student.routes.js             # Definición de Endpoints
 │   │
-│   └── utils/                         
-│       └── initialSetup/               # Configuración inicial del sistema
-├── .env                                # Variables de entorno
-├── .gitignore                          # Archivos ignorados por Git
-├── Dockerfile                          # Configuración de contenedor
-├── index.js                            # Punto de entrada
-├── package-lock.js                     # Dependencias y scripts
-└── package.json                        # Dependencias y scripts
+│   └── utils/
+│       └── initialSetup.js               # Configuración inicial del sistema
+│
+├── .env                                  # Variables de entorno
+├── .gitignore                            # Archivos ignorados por Git
+├── Dockerfile                            # Configuración de contenedor
+├── index.js                              # Punto de entrada
+└── package.json                          # Dependencias y scripts
 ```
+
 ---
 
 ### Requisitos Previos
-- .NET 8.0 SDKs
-- PostgreSQL 13+
-- Cuenta de Gmail con App Password (para emails)
+- .NET 8.0 SDK
 - Node.js 22+
 - pnpm 10+ (Package Manager)
-- 16 GB de ram
+- Cuenta de Gmail con App Password (para emails)
+- 16 GB de RAM
 
 ---
 
-### Variables de Entorno 
+### Variables de Entorno
 
-Crear archivo `.env` en la raíz del proyecto:
+#### inventory-service
+
+Crear archivo `.env` en la raíz del servicio:
+
+```env
+PORT=3000
+MONGO_URI=mongodb://mongo:27017/inventory_db
+
+JWT_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
+JWT_EXPIRES_IN=1h
+JWT_ISSUER=KinalMedic
+JWT_AUDIENCE=KinalMedic
+
+NODE_TLS_REJECT_UNAUTHORIZED=0
+```
+
+#### medical-records-service
+
+Crear archivo `.env` en la raíz del servicio:
+
+```env
+PORT=3000
+MONGO_URI=mongodb://mongo:27017/medical_db
+TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
+```
+
+#### notification-service
+
+Crear archivo `.env` en la raíz del servicio:
 
 ```env
 PORT=3000
 MONGO_URI=mongodb://mongo:27017/notifications_db
 TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
-EMAIL_USER=programingteam70@gmail.com
-EMAIL_PASS=fstc wpzh frpp fooi
+EMAIL_USER=tu-correo@gmail.com
+EMAIL_PASS=tu-clave-de-aplicacion-de-16-digitos
 ```
----
 
+#### user-student-service
+
+Crear archivo `.env` en la raíz del servicio:
+
+```env
+PORT=3000
+MONGO_URI=mongodb://mongo:27017/students_db
+TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
+```
+
+---
 
 ### Instalación y Ejecución
 
 1. **Clonar el repositorio**
 ```bash
-git clone <url-repositorio>
+git clone https://github.com/Programing-Team70/Kinal_Medic.git
 ```
 
 2. **Correr Docker**
 ```bash
-Ve a la carpeta de postgre_db, y abre una terminal
-Ejecuta: docker-compose up -d
+# Dentro de la carpeta Kinal_Medic, ejecuta el siguiente comando
+# para levantar todos los servicios del ecosistema:
+docker-compose up -d
 ```
 
-3. **Poner en marcha un contenedor específico**
+3. **Levantar un contenedor específico**
 ```bash
-Si necesitas levantar únicamente un servicio dentro del ecosistema Docker:
-Ejecutar: docker-compose up -d --build nombre_del_servicio
+# Si necesitas levantar únicamente un servicio dentro del ecosistema Docker:
+docker-compose up -d --build nombre_del_servicio
 ```
-4. **Instalación de dependencias**
+
+4. **Instalación de dependencias (desarrollo local)**
 ```bash
-Dependiendo del servicio, asegúrate de instalar las librerías necesarias
-Ejecuta: pnpm install
+# Dependiendo del servicio, asegúrate de instalar las librerías necesarias:
+pnpm install
 ```
-5. **Ejecutar el servicio**
+
+5. **Ejecutar el servicio (desarrollo local)**
 ```bash
-Para correr el servicio de forma manual, utiliza el comando según su dependencia:s
-Para servicios Node.js: node index.js
-Para servicios en desarrollo: pnpm run dev
+# Para servicios Node.js:
+node index.js
+
+# Para servicios en modo desarrollo:
+pnpm run dev
 ```
+
+---
+
 ## Licencia
 
 Este proyecto está licenciado bajo la Licencia MIT. Consulte el archivo [LICENSE](LICENSE) para más detalles.
