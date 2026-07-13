@@ -12,7 +12,9 @@ services:
     ports:
       - "3001:3000"
     environment:
+      - PORT=3000
       - MONGO_URI=mongodb://mongo:27017/students_db
+      - TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
     depends_on:
       - mongo
 
@@ -21,7 +23,9 @@ services:
     ports:
       - "3002:3000"
     environment:
+      - PORT=3000
       - MONGO_URI=mongodb://mongo:27017/medical_db
+      - TOKEN_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
     depends_on:
       - mongo
 
@@ -30,6 +34,7 @@ services:
     ports:
       - "3003:3000"
     environment:
+      - PORT=3000
       - MONGO_URI=mongodb://mongo:27017/inventory_db
       - JWT_SECRET=KinalMedicSuperSecretaParaJWT2024!!Segura
       - JWT_ISSUER=KinalMedic
@@ -62,5 +67,26 @@ services:
     depends_on:
       - mongo
 
+  medic-admin:
+    build:
+      context: ./medic-admin
+      dockerfile: Dockerfile
+    container_name: kinalmedic_frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_AUTH_URL=http://localhost:3001/api/students
+      - VITE_ADMIN_URL=http://localhost:3001/api/students
+      - VITE_MEDICAL_RECORDS_URL=http://localhost:3002/api/records
+      - VITE_INVENTORY_API_URL=http://localhost:3003/inv/medicine
+      - VITE_AVAILABILITY_URL=http://localhost:3004/api/availability
+      - VITE_NOTIFICATION_URL=http://localhost:3005/api/notifications
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./medic-admin:/app
+      - /app/node_modules
+    depends_on:
+      - user-student-service
+      - availability-service
 volumes:
   mongo_data:
