@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { LoginForm } from '../components/LoginForm.jsx';
 import { RegisterForm } from '../components/RegisterForm.jsx';
+import { MedicalBackground } from '../../../shared/components/layout/MedicalBackground.jsx';
 
 export const AuthPage = () => {
   const [isForgot, setIsForgot] = useState(false);
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-100 p-4'>
-      <div className='w-full max-w-xl bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:pd-10'>
+    <div className='kinal-app-shell min-h-screen flex items-center justify-center p-4'>
+      <MedicalBackground />
+      <div className='relative z-[1] w-full max-w-xl bg-white/92 backdrop-blur-md rounded-2xl shadow-xl border border-white/70 p-6 md:p-10'>
         <div className='flex justify-center mb-6'>
           <img
             src='/src/assets/img/Logo_Enfermería_Kinal.png'

@@ -26,7 +26,7 @@ export const LoginForm = ({ onForgot }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
+    <form onSubmit={handleSubmit(onSubmit)} className='space-y-5' >
       <div>
         <label htmlFor='email_login' className='block text-sm font-medium text-gray-800 mb-1.5'>
           Ingresa tu Email
@@ -76,7 +76,7 @@ export const LoginForm = ({ onForgot }) => {
         <button
           type='button'
           onClick={onForgot}
-          className='text-main-blue font-semibold hover:underline hover:cursor-pointer'
+          className='text-main-blue font-semibold hover:underline hover:cursor-pointer '
         >
           ¡Registra tu usuario aquí!
         </button>

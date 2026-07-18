@@ -1,7 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { login as loginRequest, register as registerRequest } from '../../../shared/api';
+import {
+  login as loginRequest,
+  register as registerRequest,
+  createUser as createUserRequest,
+} from '../../../shared/api';
 import { showError } from '../../../shared/utils/toast.js';
+import { canAccessApp } from '../../../shared/utils/roles.js';
 
 export const useAuthStore = create(
   persist(
@@ -17,8 +22,9 @@ export const useAuthStore = create(
       checkAuth: () => {
         const token = get().token;
         const role = get().user?.role;
-        const isAdmin = role === 'ADMIN_ROLE';
-        if (token && !isAdmin) {
+        const hasAccess = canAccessApp(role);
+        
+        if (token && !hasAccess) {
           set({
             user: null,
             token: null,
@@ -26,13 +32,13 @@ export const useAuthStore = create(
             expiresAt: null,
             isAuthenticated: false,
             isLoadingAuth: false,
-            error: 'Notienes permisos para acceder a esta aplicación',
+            error: 'No tienes permisos para acceder a esta aplicación',
           });
           return;
         }
         set({
           isLoadingAuth: false,
-          isAuthenticated: Boolean(token) && isAdmin,
+          isAuthenticated: Boolean(token) && hasAccess,
         });
       },
 
@@ -57,7 +63,7 @@ export const useAuthStore = create(
 
           console.log("Rol recibido del servidor:", role);
 
-          if (role !== 'ADMIN_ROLE') {
+          if (!canAccessApp(role)) {
             const message = 'No tienes permisos para acceder a esta aplicación';
             showError(message);
             set({
@@ -71,8 +77,21 @@ export const useAuthStore = create(
           }
 
           set({
-            user: { ...data, role },
-            token: token,   
+            user: {
+              id: data.userDetails?.id != null ? String(data.userDetails.id) : null,
+              name: data.userDetails?.name,
+              email: data.userDetails?.email,
+              carnet: data.userDetails?.carnet,
+              educationLevel: data.userDetails?.educationLevel,
+              carrera: data.userDetails?.carrera,
+              seccion: data.userDetails?.seccion,
+              hasAllergies: data.userDetails?.hasAllergies,
+              allergies: data.userDetails?.allergies,
+              guardianEmail: data.userDetails?.guardianEmail,
+              phone: data.userDetails?.phone,
+              role: role,
+            },
+            token: token,
             isAuthenticated: true,
             loading: false,
           });
@@ -102,9 +121,26 @@ export const useAuthStore = create(
           return { success: false, error: message };
         }
       },
+
+      createUser: async (formData) => {
+        try {
+          set({ loading: true, error: null });
+          const response = await createUserRequest(formData);
+          set({ loading: false });
+
+          return {
+            success: true,
+            data: response.data,
+          };
+        } catch (err) {
+          const message = err.response?.data?.message || 'Error al crear usuario';
+          set({ error: message, loading: false });
+          return { success: false, error: message };
+        }
+      },
     }),
     {
-      name: 'auth-storage-kinal-medic',
+      name: 'auth-storage-kinal-medic', 
     }
   )
 );
