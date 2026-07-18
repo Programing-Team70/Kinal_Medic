@@ -40,6 +40,20 @@ const swaggerOptions = {
                         temperature: { type: "string", example: "37°C" },
                         bloodPressure: { type: "string", example: "120/80" },
                         weight: { type: "string", example: "70kg" },
+                        height: { type: "string", example: "1.70m" },
+                    },
+                },
+                StudentSnapshot: {
+                    type: "object",
+                    properties: {
+                        name: { type: "string", example: "Juan Pérez" },
+                        email: { type: "string", example: "juan@kinal.edu.gt" },
+                        educationLevel: { type: "string", example: "DIVERSIFICADO" },
+                        carrera: { type: "string", example: "Informática" },
+                        seccion: { type: "string", example: "A" },
+                        hasAllergies: { type: "boolean", example: true },
+                        allergies: { type: "string", example: "Penicilina" },
+                        guardianEmail: { type: "string", example: "padre@gmail.com" },
                     },
                 },
                 MedicalRecordInput: {
@@ -47,8 +61,22 @@ const swaggerOptions = {
                     required: ["carnet", "description"],
                     properties: {
                         carnet: { type: "string", example: "2024332" },
-                        description: { type: "string", example: "Paciente presenta cuadro de gripe común." },
-                        medication: { type: "string", example: "Paracetamol 500mg cada 8 horas." },
+                        description: {
+                            type: "string",
+                            example: "Motivo de llegada: dolor de cabeza y fiebre.",
+                        },
+                        medication: {
+                            type: "string",
+                            example: "Paracetamol",
+                            description: "Nombre legible del medicamento (inventario)",
+                        },
+                        medicationId: {
+                            type: "string",
+                            example: "65f1a...",
+                            description: "ID del medicamento en inventory-service",
+                        },
+                        medicationName: { type: "string", example: "Paracetamol" },
+                        student: { $ref: '#/components/schemas/StudentSnapshot' },
                         vitals: { $ref: '#/components/schemas/Vitals' },
                     },
                 },
@@ -57,8 +85,11 @@ const swaggerOptions = {
                     properties: {
                         _id: { type: "string", example: "65f1a..." },
                         carnet: { type: "string" },
+                        student: { $ref: '#/components/schemas/StudentSnapshot' },
                         description: { type: "string" },
                         medication: { type: "string" },
+                        medicationId: { type: "string" },
+                        medicationName: { type: "string" },
                         vitals: { $ref: '#/components/schemas/Vitals' },
                         date: { type: "string", format: "date-time" },
                     },
