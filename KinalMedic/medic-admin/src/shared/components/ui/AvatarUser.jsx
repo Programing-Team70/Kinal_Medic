@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../../features/auth/store/authStore.js';
-import defaultAvatarImg from '../../../assets/img/LogoMedic.png';
+import medicAvatarImg from '../../../assets/img/LogoMedic.png';
+import studentAvatarImg from '../../../assets/img/Logo_Estudiante.png';
+import { isStaff, isStudent, roleLabel } from '../../utils/roles.js';
 
 export const AvatarUser = () => {
   const { user, logout } = useAuthStore();
@@ -26,60 +28,62 @@ export const AvatarUser = () => {
     navigate('/', { replace: true });
   };
 
+  const defaultAvatar = isStudent(user?.role) ? studentAvatarImg : medicAvatarImg;
+
   const avatarSrc =
     user?.profilePicture && user.profilePicture.trim() !== ''
       ? user.profilePicture
-      : defaultAvatarImg;
+      : defaultAvatar;
+
+  const displayName = user?.name || user?.username || 'Usuario Kinal';
 
   return (
     <div className='relative' ref={dropdownRef}>
-      {/* Botón del Avatar en el Navbar */}
       <div 
         onClick={toggleMenu}
         className='flex items-center gap-2 cursor-pointer p-1 rounded-full hover:bg-gray-100 transition duration-150 select-none'
       >
         <img
           src={avatarSrc}
-          alt={user?.username || 'Usuario'}
+          alt={displayName}
           className='w-10 h-10 rounded-full object-cover border-2 border-blue-500 shadow-sm'
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = defaultAvatarImg;
+            e.target.src = defaultAvatar;
           }}
         />
+        <span className="text-sm font-bold text-gray-700 hidden md:block max-w-[150px] truncate">
+          {displayName}
+        </span>
       </div>
 
-      {/* Menú Desplegable Mejorado */}
       {open && (
         <div className='absolute right-0 mt-3 w-64 bg-white border border-gray-200 rounded-2xl shadow-xl animate-fadeIn z-50 overflow-hidden'>
           
-          {/* SECCIÓN DEL PERFIL: Muestra quién inició sesión */}
           <div className='p-5 bg-gradient-to-b from-slate-50 to-white border-b border-gray-100 flex flex-col items-center text-center'>
             <img
               src={avatarSrc}
-              alt={user?.username}
+              alt={displayName}
               className='w-16 h-16 rounded-full object-cover border-2 border-white shadow-md mb-3'
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = defaultAvatarImg;
+                e.target.src = defaultAvatar;
               }}
             />
             <p className='font-black text-gray-800 text-base leading-tight tracking-tight max-w-full truncate'>
-              {user?.username || 'Profesor Norman Kinal'}
+              {displayName}
             </p>
             <p className='text-xs text-gray-500 truncate w-full mb-3 font-medium'>
-              {user?.email || 'adminKinal@kinal.edu.gt'}
+              {user?.email || 'correo@kinal.edu.gt'}
             </p>
 
-            {/* Insignia Dinámica del Rol */}
             {user?.role && (
               <span className='px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-black uppercase tracking-wider border border-blue-100 shadow-sm'>
-                {user.role}
+                {roleLabel(user.role)}
               </span>
             )}
           </div>
 
-          {/* OPCIONES DE NAVEGACIÓN */}
           <ul className='p-2 text-sm text-gray-700 font-bold space-y-1'>
             <li>
               <Link 
@@ -94,18 +98,20 @@ export const AvatarUser = () => {
               </Link>
             </li>
 
-            <li>
-              <Link 
-                to='/dashboard/users' 
-                onClick={() => setOpen(false)}
-                className='flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-slate-50 text-gray-700 transition duration-150'
-              >
-                <svg className='w-5 h-5 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' />
-                </svg>
-                Gestión de Usuarios
-              </Link>
-            </li>
+            {isStaff(user?.role) && (
+              <li>
+                <Link 
+                  to='/dashboard/users' 
+                  onClick={() => setOpen(false)}
+                  className='flex items-center gap-3 w-full p-2.5 rounded-xl hover:bg-slate-50 text-gray-700 transition duration-150'
+                >
+                  <svg className='w-5 h-5 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' />
+                  </svg>
+                  Gestión de Usuarios
+                </Link>
+              </li>
+            )}
 
             <div className='h-[1px] bg-gray-100 my-1 mx-2'></div>
 

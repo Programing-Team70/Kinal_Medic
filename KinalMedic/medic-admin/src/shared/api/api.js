@@ -1,17 +1,23 @@
 import axios from '../utils/axios.js';
 import { useAuthStore } from '../../features/auth/store/authStore.js';
 
-// Implementación de .env para las rutas correctas del servicio user.
+const AUTH_URL =
+  import.meta.env.VITE_AUTH_URL || 'http://localhost:3001/api/students';
+const ADMIN_URL =
+  import.meta.env.VITE_ADMIN_URL || 'http://localhost:3001/api/students';
+const NOTIFICATION_URL =
+  import.meta.env.VITE_NOTIFICATION_URL ||
+  'http://localhost:3005/api/notifications';
 
 export const axiosAuth = axios.create({
-  baseURL: import.meta.env.VITE_AUTH_URL,
-  timeout: 5000,
+  baseURL: AUTH_URL,
+  timeout: 20000,
   headers: { 'Content-Type': 'application/json' },
 });
 
 export const axiosAdmin = axios.create({
-  baseURL: import.meta.env.VITE_ADMIN_URL,
-  timeout: 5000,
+  baseURL: ADMIN_URL,
+  timeout: 20000,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -29,8 +35,8 @@ axiosAdmin.interceptors.request.use(injectToken);
 axiosAuth.interceptors.request.use(injectToken);
 
 export const axiosNotification = axios.create({
-  baseURL: import.meta.env.VITE_NOTIFICATION_URL,
-  timeout: 8000,
+  baseURL: NOTIFICATION_URL,
+  timeout: 20000,
   headers: { 'Content-Type': 'application/json' },
 });
 
