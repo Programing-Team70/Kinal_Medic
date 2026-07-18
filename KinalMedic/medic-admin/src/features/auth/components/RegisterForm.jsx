@@ -1,6 +1,16 @@
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useAuthStore } from '../store/authStore.js';
 import toast from 'react-hot-toast';
+
+const CARRERAS = [
+  'Informática',
+  'Electrónica',
+  'Electricidad',
+  'Mecánica',
+  'Dibujo técnico',
+];
+
+const SECCIONES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
 export const RegisterForm = ({ onSwitch }) => {
   const registerUser = useAuthStore((state) => state.register);
@@ -9,32 +19,65 @@ export const RegisterForm = ({ onSwitch }) => {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
-  } = useForm();
+    setValue,
+  } = useForm({
+    defaultValues: {
+      name: '',
+      carnet: '',
+      educationLevel: '',
+      carrera: '',
+      seccion: '',
+      hasAllergies: 'false',
+      allergies: '',
+      guardianEmail: '',
+      email: '',
+      password: '',
+    },
+  });
+
+  const educationLevel = useWatch({ control, name: 'educationLevel' });
+  const hasAllergies = useWatch({ control, name: 'hasAllergies' });
 
   const onSubmit = async (data) => {
- 
+    const isAllergic = data.hasAllergies === 'true' || data.hasAllergies === true;
+
     const payload = {
-      ...data,
-      role: 'STUDENT_ROLE'
+      name: data.name.trim(),
+      carnet: data.carnet.trim(),
+      educationLevel: data.educationLevel,
+      seccion: data.seccion,
+      hasAllergies: isAllergic,
+      allergies: isAllergic ? data.allergies.trim() : 'Ninguna',
+      guardianEmail: data.guardianEmail.trim(),
+      email: data.email.trim(),
+      password: data.password,
+      role: 'STUDENT_ROLE',
     };
 
+    if (data.educationLevel === 'DIVERSIFICADO') {
+      payload.carrera = data.carrera;
+    }
+
     const res = await registerUser(payload);
-    
+
     if (res.success) {
       toast.success('¡Estudiante registrado con éxito! Ya puedes iniciar sesión.');
-      reset(); 
-      onSwitch(); 
+      reset();
+      onSwitch();
     } else {
       toast.error(res.error || 'No se pudo completar el registro');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 max-h-[450px] overflow-y-auto px-1'>
-      
-      {/* 1. Nombre Completo */}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className='space-y-3 max-h-[480px] overflow-y-auto px-1'
+    >
+      {/* Nombre */}
       <div>
         <label htmlFor='name' className='block text-sm font-medium text-gray-800 mb-1'>
           Nombre Completo
@@ -49,7 +92,7 @@ export const RegisterForm = ({ onSwitch }) => {
         {errors.name && <p className='text-red-600 text-xs mt-0.5'>{errors.name.message}</p>}
       </div>
 
-      {/* 2. Carnet */}
+      {/* Carnet */}
       <div>
         <label htmlFor='carnet' className='block text-sm font-medium text-gray-800 mb-1'>
           Carnet Estudiantil
@@ -64,29 +107,151 @@ export const RegisterForm = ({ onSwitch }) => {
         {errors.carnet && <p className='text-red-600 text-xs mt-0.5'>{errors.carnet.message}</p>}
       </div>
 
-      {/* 3. Carrera */}
+      {/* Nivel educativo */}
       <div>
-        <label htmlFor='carrera' className='block text-sm font-medium text-gray-800 mb-1'>
-          Carrera / Especialidad
+        <label htmlFor='educationLevel' className='block text-sm font-medium text-gray-800 mb-1'>
+          Nivel educativo
         </label>
         <select
-          id='carrera'
+          id='educationLevel'
           className='w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white'
-          {...register('carrera', { required: 'Selecciona tu carrera' })}
+          {...register('educationLevel', {
+            required: 'Selecciona el nivel educativo',
+            onChange: (e) => {
+              if (e.target.value === 'BASICO') {
+                setValue('carrera', '');
+              }
+            },
+          })}
         >
           <option value=''>Selecciona una opción...</option>
-          <option value='Informática'>Informatica</option>
-          <option value='Electrónica'>Electrónica</option>
-          <option value='Electricidad'>Electricidad</option>
-          <option value='Mecánica'>Mecánica</option>
+          <option value='BASICO'>Básico</option>
+          <option value='DIVERSIFICADO'>Diversificado</option>
         </select>
-        {errors.carrera && <p className='text-red-600 text-xs mt-0.5'>{errors.carrera.message}</p>}
+        {errors.educationLevel && (
+          <p className='text-red-600 text-xs mt-0.5'>{errors.educationLevel.message}</p>
+        )}
       </div>
 
-      {/* 4. Email */}
+      {/* Carrera solo si Diversificado */}
+      {educationLevel === 'DIVERSIFICADO' && (
+        <div>
+          <label htmlFor='carrera' className='block text-sm font-medium text-gray-800 mb-1'>
+            Carrera / Especialidad
+          </label>
+          <select
+            id='carrera'
+            className='w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white'
+            {...register('carrera', {
+              required:
+                educationLevel === 'DIVERSIFICADO'
+                  ? 'Selecciona tu carrera'
+                  : false,
+            })}
+          >
+            <option value=''>Selecciona una opción...</option>
+            {CARRERAS.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          {errors.carrera && (
+            <p className='text-red-600 text-xs mt-0.5'>{errors.carrera.message}</p>
+          )}
+        </div>
+      )}
+
+      {/* Sección */}
+      <div>
+        <label htmlFor='seccion' className='block text-sm font-medium text-gray-800 mb-1'>
+          Sección
+        </label>
+        <select
+          id='seccion'
+          className='w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white'
+          {...register('seccion', { required: 'Selecciona tu sección' })}
+        >
+          <option value=''>Selecciona una opción...</option>
+          {SECCIONES.map((s) => (
+            <option key={s} value={s}>
+              Sección {s}
+            </option>
+          ))}
+        </select>
+        {errors.seccion && (
+          <p className='text-red-600 text-xs mt-0.5'>{errors.seccion.message}</p>
+        )}
+      </div>
+
+      {/* ¿Es alérgico? */}
+      <div>
+        <label htmlFor='hasAllergies' className='block text-sm font-medium text-gray-800 mb-1'>
+          ¿Es alérgico?
+        </label>
+        <select
+          id='hasAllergies'
+          className='w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white'
+          {...register('hasAllergies', { required: true })}
+        >
+          <option value='false'>No</option>
+          <option value='true'>Sí</option>
+        </select>
+      </div>
+
+      {hasAllergies === 'true' && (
+        <div>
+          <label htmlFor='allergies' className='block text-sm font-medium text-gray-800 mb-1'>
+            ¿A qué es alérgico?
+          </label>
+          <input
+            type='text'
+            id='allergies'
+            placeholder='Ej. Penicilina, mariscos, polen...'
+            className='w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
+            {...register('allergies', {
+              required:
+                hasAllergies === 'true'
+                  ? 'Indica a qué eres alérgico'
+                  : false,
+            })}
+          />
+          {errors.allergies && (
+            <p className='text-red-600 text-xs mt-0.5'>{errors.allergies.message}</p>
+          )}
+        </div>
+      )}
+
+      {/* Correo del encargado */}
+      <div>
+        <label
+          htmlFor='guardianEmail'
+          className='block text-sm font-medium text-gray-800 mb-1'
+        >
+          Correo del encargado
+        </label>
+        <input
+          type='email'
+          id='guardianEmail'
+          placeholder='encargado@gmail.com'
+          className='w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500'
+          {...register('guardianEmail', {
+            required: 'El correo del encargado es obligatorio',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Correo del encargado inválido',
+            },
+          })}
+        />
+        {errors.guardianEmail && (
+          <p className='text-red-600 text-xs mt-0.5'>{errors.guardianEmail.message}</p>
+        )}
+      </div>
+
+      {/* Email del alumno */}
       <div>
         <label htmlFor='email' className='block text-sm font-medium text-gray-800 mb-1'>
-          Correo Electrónico
+          Correo Electrónico (estudiante)
         </label>
         <input
           type='email'
@@ -104,7 +269,7 @@ export const RegisterForm = ({ onSwitch }) => {
         {errors.email && <p className='text-red-600 text-xs mt-0.5'>{errors.email.message}</p>}
       </div>
 
-      {/* 5. Contraseña */}
+      {/* Contraseña */}
       <div>
         <label htmlFor='password' className='block text-sm font-medium text-gray-800 mb-1'>
           Contraseña de Acceso
@@ -119,7 +284,9 @@ export const RegisterForm = ({ onSwitch }) => {
             minLength: { value: 6, message: 'Mínimo 6 caracteres' },
           })}
         />
-        {errors.password && <p className='text-red-600 text-xs mt-0.5'>{errors.password.message}</p>}
+        {errors.password && (
+          <p className='text-red-600 text-xs mt-0.5'>{errors.password.message}</p>
+        )}
       </div>
 
       <button
