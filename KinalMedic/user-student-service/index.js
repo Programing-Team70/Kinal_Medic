@@ -25,7 +25,7 @@ const startServer = async () => {
     try {
         await connectDB();
         
-        const PORT = process.env.PORT || 3001;
+        const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
             console.log(`Servicio de Estudiantes corriendo en puerto ${PORT}`);
             console.log(`Swagger: http://localhost:${PORT}/api-docs`);
