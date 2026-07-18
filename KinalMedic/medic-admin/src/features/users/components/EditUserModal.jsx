@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Spinner } from '../../auth/components/Spinner.jsx';
 
@@ -9,21 +10,21 @@ const CARRERAS = [
   'Dibujo técnico',
 ];
 
-const SECCIONES = ['A', 'B', 'C', 'D', 'E'];
+const SECCIONES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
-export const CreateStudentModal = ({
+export const EditUserModal = ({
   isOpen,
+  user,
   onClose,
-  onCreate,
+  onUpdate,
   loading,
-  error,
-  canCreateMedic = false,
+  canChangeRole = false,
+  isSelf = false,
 }) => {
   const {
     register,
     handleSubmit,
     control,
-    getValues,
     reset,
     setValue,
     formState: { errors },
@@ -40,7 +41,6 @@ export const CreateStudentModal = ({
       guardianEmail: '',
       email: '',
       password: '',
-      confirmPassword: '',
       phone: '',
     },
   });
@@ -49,8 +49,27 @@ export const CreateStudentModal = ({
   const educationLevel = useWatch({ control, name: 'educationLevel' });
   const hasAllergies = useWatch({ control, name: 'hasAllergies' });
   const isStudent = role === 'STUDENT_ROLE';
+  const isStaffRole = role === 'ADMIN_ROLE' || role === 'ADMIN_PRINCIPAL';
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!user || !isOpen) return;
+    reset({
+      role: user.role || 'STUDENT_ROLE',
+      name: user.name || '',
+      carnet: user.carnet || '',
+      educationLevel: user.educationLevel || '',
+      carrera: user.carrera || '',
+      seccion: user.seccion || '',
+      hasAllergies: user.hasAllergies ? 'true' : 'false',
+      allergies: user.allergies || '',
+      guardianEmail: user.guardianEmail || '',
+      email: user.email || '',
+      password: '',
+      phone: user.phone || '',
+    });
+  }, [user, isOpen, reset]);
+
+  if (!isOpen || !user) return null;
 
   const submit = async (values) => {
     const isAllergic =
@@ -58,14 +77,16 @@ export const CreateStudentModal = ({
 
     let payload;
 
-    if (values.role === 'ADMIN_ROLE' && canCreateMedic) {
+    if (values.role === 'ADMIN_ROLE' || values.role === 'ADMIN_PRINCIPAL') {
       payload = {
         name: values.name.trim(),
         email: values.email.trim(),
-        password: values.password,
-        phone: values.phone.trim(),
-        role: 'ADMIN_ROLE',
+        phone: values.phone?.trim() || '',
       };
+      if (canChangeRole && values.role === 'ADMIN_ROLE') {
+        payload.role = 'ADMIN_ROLE';
+      }
+      // No se envía cambio de rol para ADMIN_PRINCIPAL
     } else {
       payload = {
         name: values.name.trim(),
@@ -76,15 +97,21 @@ export const CreateStudentModal = ({
         allergies: isAllergic ? values.allergies.trim() : 'Ninguna',
         guardianEmail: values.guardianEmail.trim(),
         email: values.email.trim(),
-        password: values.password,
-        role: 'STUDENT_ROLE',
+        carrera:
+          values.educationLevel === 'DIVERSIFICADO'
+            ? values.carrera
+            : null,
       };
-      if (values.educationLevel === 'DIVERSIFICADO') {
-        payload.carrera = values.carrera;
+      if (canChangeRole) {
+        payload.role = 'STUDENT_ROLE';
       }
     }
 
-    const ok = await onCreate(payload);
+    if (values.password?.trim()) {
+      payload.password = values.password.trim();
+    }
+
+    const ok = await onUpdate(user._id, payload);
     if (ok) {
       reset();
       onClose();
@@ -100,35 +127,48 @@ export const CreateStudentModal = ({
             background: 'linear-gradient(90deg, var(--main-blue) 0%, #1956a3 100%)',
           }}
         >
-          <h2 className='text-xl sm:text-2xl font-bold'>Registrar Nuevo Usuario</h2>
+          <h2 className='text-xl sm:text-2xl font-bold'>Editar usuario</h2>
           <p className='text-xs sm:text-sm opacity-80'>
-            {canCreateMedic
-              ? 'Puedes crear estudiantes o médicos (solo el Admin Principal crea médicos).'
-              : 'Como médico solo puedes registrar estudiantes.'}
+            Modifica los datos de {user.name}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(submit)} className='p-4 sm:p-6 space-y-4 overflow-y-auto'>
-          {/* Rol */}
+        <form
+          onSubmit={handleSubmit(submit)}
+          className='p-4 sm:p-6 space-y-4 overflow-y-auto'
+        >
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-1.5'>Rol</label>
-            <select
-              {...register('role', { required: 'Selecciona un rol' })}
-              className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white'
-              disabled={!canCreateMedic}
-            >
-              <option value='STUDENT_ROLE'>Estudiante (STUDENT_ROLE)</option>
-              {canCreateMedic && (
+            <label className='block text-sm font-medium text-gray-700 mb-1.5'>
+              Rol
+            </label>
+            {user.role === 'ADMIN_PRINCIPAL' || !canChangeRole ? (
+              <input
+                type='text'
+                readOnly
+                value={
+                  user.role === 'ADMIN_PRINCIPAL'
+                    ? 'Admin Principal (único)'
+                    : user.role === 'ADMIN_ROLE'
+                      ? 'Médico (ADMIN_ROLE)'
+                      : 'Estudiante'
+                }
+                className='w-full px-3 py-2 border rounded-lg text-sm bg-gray-50 text-gray-600'
+              />
+            ) : (
+              <select
+                {...register('role', { required: true })}
+                className='w-full px-3 py-2 border rounded-lg text-sm bg-white'
+              >
+                <option value='STUDENT_ROLE'>Estudiante</option>
                 <option value='ADMIN_ROLE'>Médico (ADMIN_ROLE)</option>
-              )}
-            </select>
-            {!canCreateMedic && (
-              <p className='text-xs text-gray-500 mt-1'>
-                Solo el Administrador Principal puede crear médicos.
-              </p>
+              </select>
             )}
-            {errors.role && (
-              <p className='text-red-600 text-xs mt-1'>{errors.role.message}</p>
+            {(!canChangeRole || user.role === 'ADMIN_PRINCIPAL') && (
+              <p className='text-xs text-gray-500 mt-1'>
+                {user.role === 'ADMIN_PRINCIPAL'
+                  ? 'El Administrador Principal es único y no cambia de rol.'
+                  : 'No puedes cambiar el rol de este usuario.'}
+              </p>
             )}
           </div>
 
@@ -138,31 +178,21 @@ export const CreateStudentModal = ({
                 Nombre Completo
               </label>
               <input
-                {...register('name', { required: 'El nombre completo es obligatorio' })}
-                type='text'
-                placeholder='Ej. Juan Pérez'
-                className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
+                {...register('name', { required: 'El nombre es obligatorio' })}
+                className='w-full px-3 py-2 border rounded-lg text-sm'
               />
               {errors.name && (
                 <p className='text-red-600 text-xs mt-1'>{errors.name.message}</p>
               )}
             </div>
-
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1.5'>
                 Correo Electrónico
               </label>
               <input
-                {...register('email', {
-                  required: 'El email es obligatorio',
-                  pattern: {
-                    value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
-                    message: 'Formato de email inválido',
-                  },
-                })}
                 type='email'
-                placeholder='usuario@kinal.edu.gt'
-                className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
+                {...register('email', { required: 'El email es obligatorio' })}
+                className='w-full px-3 py-2 border rounded-lg text-sm'
               />
               {errors.email && (
                 <p className='text-red-600 text-xs mt-1'>{errors.email.message}</p>
@@ -170,49 +200,37 @@ export const CreateStudentModal = ({
             </div>
           </div>
 
-          {/* Campos solo estudiante */}
-          {isStudent && (
+          {isStudent ? (
             <>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-1.5'>
-                    Carnet Estudiantil
+                    Carnet
                   </label>
                   <input
                     {...register('carnet', {
                       required: isStudent ? 'El carnet es obligatorio' : false,
                     })}
-                    type='text'
-                    placeholder='Ej. 2024332'
-                    className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
+                    className='w-full px-3 py-2 border rounded-lg text-sm'
                   />
-                  {errors.carnet && (
-                    <p className='text-red-600 text-xs mt-1'>{errors.carnet.message}</p>
-                  )}
                 </div>
-
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-1.5'>
                     Nivel educativo
                   </label>
                   <select
                     {...register('educationLevel', {
-                      required: isStudent ? 'Selecciona el nivel educativo' : false,
+                      required: isStudent ? 'Selecciona el nivel' : false,
                       onChange: (e) => {
                         if (e.target.value === 'BASICO') setValue('carrera', '');
                       },
                     })}
-                    className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white'
+                    className='w-full px-3 py-2 border rounded-lg text-sm bg-white'
                   >
                     <option value=''>Selecciona...</option>
                     <option value='BASICO'>Básico</option>
                     <option value='DIVERSIFICADO'>Diversificado</option>
                   </select>
-                  {errors.educationLevel && (
-                    <p className='text-red-600 text-xs mt-1'>
-                      {errors.educationLevel.message}
-                    </p>
-                  )}
                 </div>
               </div>
 
@@ -220,7 +238,7 @@ export const CreateStudentModal = ({
                 {educationLevel === 'DIVERSIFICADO' && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1.5'>
-                      Carrera / Especialidad
+                      Carrera
                     </label>
                     <select
                       {...register('carrera', {
@@ -229,7 +247,7 @@ export const CreateStudentModal = ({
                             ? 'Selecciona la carrera'
                             : false,
                       })}
-                      className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white'
+                      className='w-full px-3 py-2 border rounded-lg text-sm bg-white'
                     >
                       <option value=''>Selecciona...</option>
                       {CARRERAS.map((c) => (
@@ -238,12 +256,8 @@ export const CreateStudentModal = ({
                         </option>
                       ))}
                     </select>
-                    {errors.carrera && (
-                      <p className='text-red-600 text-xs mt-1'>{errors.carrera.message}</p>
-                    )}
                   </div>
                 )}
-
                 <div>
                   <label className='block text-sm font-medium text-gray-700 mb-1.5'>
                     Sección
@@ -252,7 +266,7 @@ export const CreateStudentModal = ({
                     {...register('seccion', {
                       required: isStudent ? 'Selecciona la sección' : false,
                     })}
-                    className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white'
+                    className='w-full px-3 py-2 border rounded-lg text-sm bg-white'
                   >
                     <option value=''>Selecciona...</option>
                     {SECCIONES.map((s) => (
@@ -261,9 +275,6 @@ export const CreateStudentModal = ({
                       </option>
                     ))}
                   </select>
-                  {errors.seccion && (
-                    <p className='text-red-600 text-xs mt-1'>{errors.seccion.message}</p>
-                  )}
                 </div>
               </div>
 
@@ -274,13 +285,12 @@ export const CreateStudentModal = ({
                   </label>
                   <select
                     {...register('hasAllergies')}
-                    className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white'
+                    className='w-full px-3 py-2 border rounded-lg text-sm bg-white'
                   >
                     <option value='false'>No</option>
                     <option value='true'>Sí</option>
                   </select>
                 </div>
-
                 {hasAllergies === 'true' && (
                   <div>
                     <label className='block text-sm font-medium text-gray-700 mb-1.5'>
@@ -290,16 +300,11 @@ export const CreateStudentModal = ({
                       {...register('allergies', {
                         required:
                           hasAllergies === 'true'
-                            ? 'Indica a qué es alérgico'
+                            ? 'Indica las alergias'
                             : false,
                       })}
-                      type='text'
-                      placeholder='Ej. Penicilina, mariscos...'
-                      className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
+                      className='w-full px-3 py-2 border rounded-lg text-sm'
                     />
-                    {errors.allergies && (
-                      <p className='text-red-600 text-xs mt-1'>{errors.allergies.message}</p>
-                    )}
                   </div>
                 )}
               </div>
@@ -309,112 +314,64 @@ export const CreateStudentModal = ({
                   Correo del encargado
                 </label>
                 <input
+                  type='email'
                   {...register('guardianEmail', {
                     required: isStudent
                       ? 'El correo del encargado es obligatorio'
                       : false,
-                    pattern: {
-                      value: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
-                      message: 'Correo del encargado inválido',
-                    },
                   })}
-                  type='email'
-                  placeholder='encargado@gmail.com'
-                  className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
+                  className='w-full px-3 py-2 border rounded-lg text-sm'
                 />
-                {errors.guardianEmail && (
-                  <p className='text-red-600 text-xs mt-1'>{errors.guardianEmail.message}</p>
-                )}
               </div>
             </>
-          )}
-
-          {/* Teléfono solo médico */}
-          {!isStudent && canCreateMedic && (
+          ) : isStaffRole ? (
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1.5'>
                 Teléfono
               </label>
               <input
                 {...register('phone', {
-                  required: !isStudent ? 'El teléfono es obligatorio' : false,
+                  required: isStaffRole ? 'El teléfono es obligatorio' : false,
                 })}
-                type='text'
-                placeholder='55551234'
-                className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
+                className='w-full px-3 py-2 border rounded-lg text-sm'
               />
-              {errors.phone && (
-                <p className='text-red-600 text-xs mt-1'>{errors.phone.message}</p>
-              )}
             </div>
-          )}
+          ) : null}
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1.5'>
-                Contraseña
-              </label>
-              <input
-                {...register('password', {
-                  required: 'La contraseña es obligatoria',
-                  minLength: {
-                    value: 6,
-                    message: 'Debe tener al menos 6 caracteres',
-                  },
-                })}
-                type='password'
-                placeholder='********'
-                className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
-              />
-              {errors.password && (
-                <p className='text-red-600 text-xs mt-1'>{errors.password.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1.5'>
-                Confirmar contraseña
-              </label>
-              <input
-                {...register('confirmPassword', {
-                  required: 'Debe confirmar la contraseña',
-                  validate: {
-                    matchesPassword: (value) =>
-                      value === getValues('password') || 'Las contraseñas no coinciden',
-                  },
-                })}
-                type='password'
-                placeholder='********'
-                className='w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm'
-              />
-              {errors.confirmPassword && (
-                <p className='text-red-600 text-xs mt-1'>{errors.confirmPassword.message}</p>
-              )}
-            </div>
+          <div>
+            <label className='block text-sm font-medium text-gray-700 mb-1.5'>
+              Nueva contraseña (opcional)
+            </label>
+            <input
+              type='password'
+              placeholder='Dejar vacío para no cambiar'
+              {...register('password', {
+                minLength: { value: 6, message: 'Mínimo 6 caracteres' },
+              })}
+              className='w-full px-3 py-2 border rounded-lg text-sm'
+            />
+            {errors.password && (
+              <p className='text-red-600 text-xs mt-1'>{errors.password.message}</p>
+            )}
           </div>
 
-          {error && (
-            <p className='text-red-600 text-sm text-center font-medium mt-2'>{error}</p>
-          )}
-
-          <div className='flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t mt-4'>
+          <div className='flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t'>
             <button
               type='button'
               onClick={onClose}
-              className='w-full sm:w-auto px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition text-sm font-medium'
+              className='w-full sm:w-auto px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 text-sm font-medium'
             >
               Cancelar
             </button>
             <button
               type='submit'
               disabled={loading}
-              className='w-full sm:w-auto px-5 py-2 rounded-lg text-white font-medium transition shadow disabled:opacity-60 text-sm'
+              className='w-full sm:w-auto px-5 py-2 rounded-lg text-white font-medium text-sm disabled:opacity-60'
               style={{
                 background: 'linear-gradient(90deg, var(--main-blue) 0%, #1956a3 100%)',
-                border: 'none',
               }}
             >
-              {loading ? <Spinner small /> : 'Registrar Usuario'}
+              {loading ? <Spinner small /> : 'Guardar cambios'}
             </button>
           </div>
         </form>
