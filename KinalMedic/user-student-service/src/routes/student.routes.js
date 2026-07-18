@@ -29,7 +29,11 @@ router.post('/login', login);
  * @swagger
  * /api/students/register:
  *   post:
- *     summary: Registrar un nuevo estudiante 
+ *     summary: Registro público de estudiante (siempre STUDENT_ROLE)
+ *     description: |
+ *       Requiere nivel educativo (BASICO | DIVERSIFICADO).
+ *       Si es DIVERSIFICADO debe enviar carrera.
+ *       También seccion, hasAllergies (+ allergies si aplica) y guardianEmail.
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -40,16 +44,21 @@ router.post('/login', login);
  *     responses:
  *       201:
  *         description: Estudiante registrado con éxito
+ *       400:
+ *         description: Datos incompletos o inválidos
+ *       409:
+ *         description: Correo o carnet ya registrados
  */
 router.post('/register', studentController.register); 
 
 /**
- * 
  * @swagger
  * /api/students/create:
  *   post:
- *     summary: Registrar un estudiante (Admin puede hacer esto con Token)
- *     tags: [Auth]
+ *     summary: Crear usuario (Admin). Mismos datos de alumno + rol
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -58,9 +67,11 @@ router.post('/register', studentController.register);
  *             $ref: '#/components/schemas/StudentRegister'
  *     responses:
  *       201:
- *         description: Estudiante registrado con éxito
+ *         description: Usuario creado con éxito
+ *       400:
+ *         description: Datos inválidos
  */
-router.post('/create', studentController.register);
+router.post('/create', verifyToken, isAdmin, studentController.createStudent);
 
 /**
  * @swagger
@@ -75,6 +86,20 @@ router.post('/create', studentController.register);
  *         description: Datos del perfil del usuario autenticado
  */
 router.get('/me', verifyToken, studentController.getMyProfile);
+
+/**
+ * @swagger
+ * /api/students/medics:
+ *   get:
+ *     summary: Listar personal médico (ADMIN) para alertas
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de médicos con nombre y correo
+ */
+router.get('/medics', verifyToken, studentController.getMedics);
 
 /**
  * @swagger

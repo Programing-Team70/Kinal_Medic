@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import { createAdmin } from '../src/utils/initialSetup.js';
+import dns from "dns";
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const connectDB = async () => {
     try {
