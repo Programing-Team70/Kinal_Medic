@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { addRecord, getByCarnet, updateRecord, deleteRecord } from '../controller/record.controller.js';
+import { addRecord, getByCarnet, updateRecord, deleteRecord, getAllRecords } from '../controller/record.controller.js';
 import { auth } from '../../middlewares/auth.js';
 
 const router = Router();
@@ -25,6 +25,22 @@ const router = Router();
  *         description: Error en los datos enviados
  */
 router.post('/add', auth, addRecord);
+
+/**
+ * @swagger
+ * /api/records/all:
+ *   get:
+ *     summary: Registro médico completo
+ *     tags: [medical-records-service]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista completa de registros clínicos encontrados exitosamente
+ *       404:
+ *         description: Error interno del servidor
+ */
+router.get('/all', auth, getAllRecords);
 
 /**
  * @swagger

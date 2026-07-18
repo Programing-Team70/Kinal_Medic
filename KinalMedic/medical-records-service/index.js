@@ -16,7 +16,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use('/api/records', recordRoutes);
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servicio Médico escuchando en el puerto ${PORT}`);
     console.log(`Swagger: http://localhost:${PORT}/api-docs`);
