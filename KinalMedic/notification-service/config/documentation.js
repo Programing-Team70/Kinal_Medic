@@ -11,8 +11,9 @@ const swaggerOptions = {
         openapi: "3.0.0",
         info: {
             title: "notification-service API",
-            version: "1.0.0",
-            description: "Servicio encargado del envío de alertas médicas por correo electrónico a través de Nodemailer.",
+            version: "2.0.0",
+            description:
+                "Alertas médicas por correo: solicitud leve/moderada y emergencia total (médicos + encargado).",
             contact: {
                 name: "Academic Programming Team",
                 email: "programingteam70@gmail.com",
@@ -28,28 +29,69 @@ const swaggerOptions = {
             schemas: {
                 NotificationInput: {
                     type: "object",
-                    required: ["doctorEmail", "studentName", "studentCarnet", "description"],
+                    required: ["studentName", "studentCarnet", "description"],
                     properties: {
-                        doctorEmail: { 
-                            type: "string", 
-                            format: "email", 
-                            example: "dlucas-2024332@kinal.edu.gt",
-                            description: "Correo electrónico del médico que recibirá la alerta"
+                        doctorEmails: {
+                            type: "array",
+                            items: { type: "string", format: "email" },
+                            example: ["admin@kinal.edu.gt"],
+                            description: "Correos de médicos seleccionados",
                         },
-                        studentName: { 
-                            type: "string", 
-                            example: "Dany Lucas",
-                            description: "Nombre completo del estudiante que solicita ayuda"
+                        doctorEmail: {
+                            type: "string",
+                            format: "email",
+                            description: "Compatibilidad: un solo médico",
                         },
-                        studentCarnet: { 
-                            type: "string", 
-                            example: "2024001",
-                            description: "Número de carnet del estudiante"
+                        customEmail: {
+                            type: "string",
+                            format: "email",
+                            example: "otro.medico@kinal.edu.gt",
+                            description: "Correo adicional opcional",
                         },
-                        description: { 
-                            type: "string", 
-                            example: "Fuerte dolor abdominal y náuseas",
-                            description: "Descripción breve de la urgencia médica"
+                        studentName: { type: "string", example: "Juan Pérez" },
+                        studentCarnet: { type: "string", example: "2024001" },
+                        studentEmail: { type: "string", example: "juan@kinal.edu.gt" },
+                        guardianEmail: { type: "string", example: "padre@gmail.com" },
+                        educationLevel: { type: "string", example: "DIVERSIFICADO" },
+                        carrera: { type: "string", example: "Informática" },
+                        seccion: { type: "string", example: "A" },
+                        hasAllergies: { type: "boolean", example: true },
+                        allergies: { type: "string", example: "Penicilina" },
+                        description: {
+                            type: "string",
+                            example: "Dolor de cabeza y mareos desde la mañana",
+                        },
+                        urgency: {
+                            type: "string",
+                            enum: ["LEVE", "MODERADA"],
+                            example: "MODERADA",
+                        },
+                    },
+                },
+                EmergencyInput: {
+                    type: "object",
+                    required: ["studentName", "studentCarnet"],
+                    properties: {
+                        doctorEmails: {
+                            type: "array",
+                            items: { type: "string" },
+                            description: "Correos de todo el personal médico",
+                        },
+                        customEmail: { type: "string", format: "email" },
+                        guardianEmail: {
+                            type: "string",
+                            format: "email",
+                            description: "Correo del encargado (se notifica siempre)",
+                        },
+                        studentName: { type: "string" },
+                        studentCarnet: { type: "string" },
+                        studentEmail: { type: "string" },
+                        hasAllergies: { type: "boolean" },
+                        allergies: { type: "string" },
+                        seccion: { type: "string" },
+                        note: {
+                            type: "string",
+                            description: "Nota opcional del alumno",
                         },
                     },
                 },
@@ -57,13 +99,17 @@ const swaggerOptions = {
                     type: "object",
                     properties: {
                         success: { type: "boolean", example: true },
-                        message: { type: "string", example: "Alerta médica enviada al doctor correctamente!" }
-                    }
-                }
+                        message: { type: "string" },
+                        recipients: {
+                            type: "array",
+                            items: { type: "string" },
+                        },
+                    },
+                },
             },
         },
         tags: [
-            { name: "Notifications", description: "Envío de alertas de emergencia" },
+            { name: "Notifications", description: "Envío de alertas médicas" },
         ],
     },
     apis: [path.join(__dirname, "../src/routes/*.js")],
