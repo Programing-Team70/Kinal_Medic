@@ -79,5 +79,23 @@ export const useMedicineStore = create((set, get) => ({
                 message: err.response?.data?.message || "Error al desactivar medicamento" 
             };
         }
-    }
+    },
+
+    /** Descontar stock al recetar en registro médico */
+    consumeStock: async (id, quantity = 1) => {
+        try {
+            const response = await axios.patch(
+                `${API_URL}/consume/${id}`,
+                { quantity },
+                { headers: get().getAuthHeader() }
+            );
+            await get().fetchMedicines();
+            return { success: true, message: response.data.message, medicine: response.data.medicine };
+        } catch (err) {
+            return {
+                success: false,
+                message: err.response?.data?.message || "Error al descontar stock",
+            };
+        }
+    },
 }));
