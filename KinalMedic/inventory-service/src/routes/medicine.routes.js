@@ -9,15 +9,15 @@ router.use(validateJWT, verifyAdminRole);
 
 /**
  * @swagger
- * /inv/medicine:
+ * /inv/medicine/all:
  *   get:
- *     summary: Buscar inventario
+ *     summary: Obtener todo el inventario de medicamentos
  *     tags: [inventory-service]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Lista de medicamentos activos.
+ *         description: Arreglo con todos los medicamentos registrados.
  *         content:
  *           application/json:
  *             schema:
@@ -26,11 +26,11 @@ router.use(validateJWT, verifyAdminRole);
  *                 success: { type: boolean }
  *                 data: { type: array, items: { $ref: '#/components/schemas/Medicine' } }
  */
-router.get("/", medicineController.getMedicines);
+router.get("/all", medicineController.getMedicines);
 
 /**
  * @swagger
- * /inv/medicine/{id}:
+ * /inv/medicine/find/{id}:
  *   get:
  *     summary: Buscar inventario (por ID)
  *     tags: [inventory-service]
@@ -48,11 +48,11 @@ router.get("/", medicineController.getMedicines);
  *       404:
  *         description: Medicamento no encontrado.
  */
-router.get("/:id", medicineController.getMedicine);
+router.get("/find/:id", medicineController.getMedicine);
 
 /**
  * @swagger
- * /inv/medicine:
+ * /inv/medicine/add:
  *   post:
  *     summary: Crear un registro de inventario
  *     tags: [inventory-service]
@@ -68,11 +68,11 @@ router.get("/:id", medicineController.getMedicine);
  *       201:
  *         description: Medicamento creado exitosamente.
  */
-router.post("/", medicineController.createMedicine);
+router.post("/add", medicineController.createMedicine);
 
 /**
  * @swagger
- * /inv/medicine/{id}:
+ * /inv/medicine/update/{id}:
  *   put:
  *     summary: Modificar el inventario
  *     tags: [inventory-service]
@@ -94,11 +94,11 @@ router.post("/", medicineController.createMedicine);
  *       200:
  *         description: Medicamento actualizado.
  */
-router.put("/:id", medicineController.updateMedicine);
+router.put("/update/:id", medicineController.updateMedicine);
 
 /**
  * @swagger
- * /inv/medicine/{id}:
+ * /inv/medicine/deactivate/{id}:
  *   patch:
  *     summary: Eliminar el inventario (Desactivar)
  *     tags: [inventory-service]
@@ -114,6 +114,35 @@ router.put("/:id", medicineController.updateMedicine);
  *       200:
  *         description: Medicamento desactivado correctamente.
  */
-router.patch("/:id", medicineController.deactivateMedicine);
+router.patch("/deactivate/:id", medicineController.deactivateMedicine);
+
+/**
+ * @swagger
+ * /inv/medicine/consume/{id}:
+ *   patch:
+ *     summary: Descontar stock al recetar un medicamento
+ *     tags: [inventory-service]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quantity: { type: number, example: 1 }
+ *     responses:
+ *       200:
+ *         description: Stock descontado correctamente.
+ *       400:
+ *         description: Stock insuficiente o cantidad inválida.
+ */
+router.patch("/consume/:id", medicineController.consumeStock);
 
 export default router;

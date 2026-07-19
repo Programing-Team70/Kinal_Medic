@@ -1,12 +1,15 @@
 'use strict';
 
 import mongoose from 'mongoose';
+import dns from "dns";
+
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 export const dbConnection = async () => {
     try {
         mongoose.connection.on('error', () => {
-        console.log('MongoDB | no se pudo conectar a mongoDB');
-        mongoose.disconnect();
+            console.log('MongoDB | no se pudo conectar a mongoDB');
+            mongoose.disconnect();
         });
         mongoose.connection.on('connecting', () => {
             console.log('MongoDB | intentando conectar a mongoDB');
@@ -15,7 +18,8 @@ export const dbConnection = async () => {
             console.log('MongoDB | conectado a mongoDB');
         });
         mongoose.connection.on('open', () => {
-            console.log('MongoDB | conectado a la base de datos Heaven Flavor');
+            const dbName = mongoose.connection.name;
+            console.log(`MongoDB | conectado a la base de datos: ${dbName}`);
         });
         mongoose.connection.on('reconnected', () => {
             console.log('MongoDB | reconectado a mongoDB');
@@ -28,9 +32,10 @@ export const dbConnection = async () => {
             maxPoolSize: 10,
         });
     } catch (error) {
-    console.error(`Error al conectar la db: ${error}`);
-    process.exit(1);
-    }};
+        console.error(`Error al conectar la db: ${error}`);
+        process.exit(1);
+    }
+};
 
 const gracefulShutdown = async (signal) => {
     console.log(`MongoDB | Recibiendo ${signal}. Cerrando la conexion a la base de datos...`);
