@@ -28,7 +28,7 @@ export const validateJWT = (req, res, next) => {
 
         req.user = {
             id: decoded.id || decoded.uid || decoded.sub,
-            role: decoded.role || "student"
+            role: decoded.role || "STUDENT_ROLE"
         };
         
         next();
@@ -51,11 +51,14 @@ export const validateJWT = (req, res, next) => {
     }
 };
 
+const STAFF_ROLES = ["ADMIN_ROLE", "ADMIN_PRINCIPAL"];
+
 export const verifyAdminRole = (req, res, next) => {
-    if (!req.user || req.user.role !== "admin") {
+    if (!req.user || !STAFF_ROLES.includes(req.user.role)) {
         return res.status(403).json({
             success: false,
-            message: "Acceso denegado: se requiere rol de administrador."
+            message:
+                "Acceso denegado: se requiere rol de médico o Administrador Principal.",
         });
     }
     next();
