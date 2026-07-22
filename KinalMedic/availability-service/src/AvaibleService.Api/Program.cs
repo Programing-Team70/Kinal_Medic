@@ -11,14 +11,16 @@ builder.Configuration.AddEnvironmentVariables();
 
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
                 ?? builder.Configuration["JWT_SECRET"] 
-                ?? "SecretKeyForKinalMedicForKinalMedi";
+                ?? "SecretKeyForKinalMedicForKinalMedicKinalKinal";
 
 var issuer = builder.Configuration["Issuer"] ?? "KinalMedic";
 var audience = builder.Configuration["Audience"] ?? "KinalMedic";
 
+Console.WriteLine($"JWT Secret length: {jwtSecret.Length} characters");
+
 if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
 {
-    Console.WriteLine("ADVERTENCIA: JWT_SECRET es débil o no está configurado correctamente");
+    Console.WriteLine("⚠️ ADVERTENCIA: JWT_SECRET es débil o no está configurado correctamente");
 }
 
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
