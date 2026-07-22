@@ -5,11 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-{
-    Args = args,
-    EnvironmentName = Environments.Production
-});
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
@@ -63,10 +59,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             },
             OnMessageReceived = context =>
             {
-                if (context.Token != null && context.Token.Length > 20)
-                {
-                    Console.WriteLine($"*** TOKEN RECIBIDO: {context.Token.Substring(0, 20)}... ***");
-                }
+                Console.WriteLine($"*** TOKEN RECIBIDO: {context.Token?.Substring(0, Math.Min(20, context.Token?.Length ?? 0))}... ***");
                 return Task.CompletedTask;
             }
         };
@@ -86,7 +79,6 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-// Índice único teacherId + limpieza de duplicados (evita 2 tarjetas del mismo médico)
 try
 {
     var repo = app.Services.GetRequiredService<AvailabilityRepository>();
@@ -101,10 +93,6 @@ catch (Exception ex)
 if (app.Environment.IsDevelopment())
 {
     Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
-}
-
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
 }
