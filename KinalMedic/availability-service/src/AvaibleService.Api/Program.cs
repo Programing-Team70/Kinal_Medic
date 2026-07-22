@@ -42,7 +42,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             RequireExpirationTime = true,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+            {
+                var jwtHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                jwtHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
+                return validatedToken;
+            }
         };
 
         options.Events = new JwtBearerEvents
