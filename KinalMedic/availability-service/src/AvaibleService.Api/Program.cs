@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-var options = new WebApplicationOptions
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
-    ContentRootPath = Directory.GetCurrentDirectory()
-};
+    EnvironmentName = Environments.Production
+});
 
-var builder = WebApplication.CreateBuilder(options);
+builder.Configuration.AddEnvironmentVariables();
 
 builder.Configuration.Sources.Clear();
 builder.Configuration
