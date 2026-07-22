@@ -5,9 +5,21 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+var options = new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = Directory.GetCurrentDirectory()
+};
 
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "ClaveSuperSecreta123";
+var builder = WebApplication.CreateBuilder(options);
+
+builder.Configuration.Sources.Clear();
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables();
+
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "SecretKeyForKinalMedicForKinalMedi";
 var keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder.Services.AddCors(options =>
