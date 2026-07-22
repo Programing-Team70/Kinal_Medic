@@ -48,8 +48,6 @@ export const login = async (req, res) => {
             });
         }
 
-        const userId = user._id.toString();
-
         const token = jwt.sign(
             {
                 id: userId,
@@ -58,7 +56,14 @@ export const login = async (req, res) => {
                 email: user.email || undefined,
             },
             secret,
-            { expiresIn: '8h' }
+            {
+                expiresIn: '8h',
+                header: {
+                    alg: 'HS256',
+                    typ: 'JWT',
+                    kid: 'KinalMedic-SigningKey-2026'   // ← Esto es lo que faltaba
+                }
+            }
         );
 
         res.json({
