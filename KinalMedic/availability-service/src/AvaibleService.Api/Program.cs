@@ -9,21 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
+// ==================== JWT CONFIG ====================
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
                 ?? builder.Configuration["JWT_SECRET"] 
                 ?? "SecretKeyForKinalMedicForKinalMedicKinalKinal";
 
-var issuer = builder.Configuration["Issuer"] ?? "KinalMedic";
-var audience = builder.Configuration["Audience"] ?? "KinalMedic";
-
 Console.WriteLine($"JWT Secret length: {jwtSecret.Length} characters");
 
-if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
 {
-    Console.WriteLine("⚠️ ADVERTENCIA: JWT_SECRET es débil o no está configurado correctamente");
-}
-
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+    KeyId = "KinalMedic-SigningKey-2026"   // ← ESTO ES LO MÁS IMPORTANTE
+};
 
 builder.Services.AddCors(options =>
 {
@@ -41,6 +37,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+// ==================== AUTHENTICATION ====================
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -78,7 +75,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             },
             OnTokenValidated = context =>
             {
-                Console.WriteLine("*** ÉXITO: El profesor ha sido autenticado ***");
+                Console.WriteLine("*** ÉXITO: Token validado correctamente ***");
                 return Task.CompletedTask;
             }
         };
@@ -103,7 +100,7 @@ try
 {
     var repo = app.Services.GetRequiredService<AvailabilityRepository>();
     await repo.InitializeAsync();
-    Console.WriteLine("[Availability] Índices y limpieza de duplicados OK");
+    Console.WriteLine("[Availability] Inicialización OK");
 }
 catch (Exception ex)
 {
@@ -118,7 +115,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("KinalAllowFrontend");
-
 app.UseAuthentication();
 app.UseAuthorization();
 
