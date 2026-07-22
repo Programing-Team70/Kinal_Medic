@@ -19,7 +19,9 @@ builder.Configuration
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
     .AddEnvironmentVariables();
 
-var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? "SecretKeyForKinalMedicForKinalMedi";
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
+                ?? builder.Configuration["JWT_SECRET"] 
+                ?? "SecretKeyForKinalMedicForKinalMedi";
 var keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder.Services.AddCors(options =>
