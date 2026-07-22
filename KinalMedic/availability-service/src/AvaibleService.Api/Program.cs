@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-// ==================== JWT CONFIG ====================
+// ==================== JWT ====================
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
                 ?? builder.Configuration["JWT_SECRET"] 
                 ?? "SecretKeyForKinalMedicForKinalMedicKinalKinal";
@@ -18,7 +18,7 @@ Console.WriteLine($"JWT Secret length: {jwtSecret.Length} characters");
 
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
 {
-    KeyId = "KinalMedic-SigningKey-2026"   // ← ESTO ES LO MÁS IMPORTANTE
+    KeyId = "KinalMedic-SigningKey-2026"
 };
 
 builder.Services.AddCors(options =>
@@ -26,18 +26,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("KinalAllowFrontend", policy =>
     {
         policy.WithOrigins(
-            "http://localhost:5173", 
-            "http://localhost:5174", 
-            "http://127.0.0.1:5173", 
-            "http://127.0.0.1:5174", 
+            "http://localhost:5173", "http://localhost:5174",
+            "http://127.0.0.1:5173", "http://127.0.0.1:5174",
             "https://kinalmedic.web.app")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
-// ==================== AUTHENTICATION ====================
+// ==================== AUTHENTICATION (VERSIÓN TOLERANTE) ====================
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -47,9 +45,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = key,
             ValidateIssuer = false,
             ValidateAudience = false,
-            RequireExpirationTime = true,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            
+            // Tolerancia al kid faltante
+            NameClaimType = "name",
+            RoleClaimType = "role"
         };
 
         options.Events = new JwtBearerEvents
@@ -57,20 +58,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             OnMessageReceived = context =>
             {
                 var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
-                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                 {
-                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                    context.Token = authHeader.Substring(7).Trim();
                 }
-
-                var tokenPreview = context.Token?.Substring(0, Math.Min(30, context.Token?.Length ?? 0)) ?? "null";
-                Console.WriteLine($"*** TOKEN RECIBIDO: {tokenPreview}... ***");
+                Console.WriteLine($"*** TOKEN RECIBIDO: {(context.Token?.Length > 30 ? context.Token.Substring(0,30)+"..." : context.Token ?? "null")} ***");
                 return Task.CompletedTask;
             },
             OnAuthenticationFailed = context =>
             {
                 Console.WriteLine($"*** ERROR AUTH: {context.Exception.Message} ***");
-                if (context.Exception.InnerException != null)
-                    Console.WriteLine($"   Inner: {context.Exception.InnerException.Message}");
                 return Task.CompletedTask;
             },
             OnTokenValidated = context =>
@@ -86,10 +83,7 @@ builder.Services.AddSingleton<AvailabilityRepository>();
 builder.Services.AddScoped<AvailabilityManager>();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
-    });
+    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
