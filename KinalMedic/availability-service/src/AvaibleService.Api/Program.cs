@@ -9,17 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 
-// ==================== JWT ====================
+// ==================== JWT CONFIG ====================
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
                 ?? builder.Configuration["JWT_SECRET"] 
                 ?? "SecretKeyForKinalMedicForKinalMedicKinalKinal";
 
 Console.WriteLine($"JWT Secret length: {jwtSecret.Length} characters");
 
-var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
-{
-    KeyId = "KinalMedic-SigningKey-2026"
-};
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
 builder.Services.AddCors(options =>
 {
@@ -35,7 +32,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ==================== AUTHENTICATION (VERSIÓN TOLERANTE) ====================
+// ==================== AUTHENTICATION ====================
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -46,11 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero,
-            
-            // Tolerancia al kid faltante
-            NameClaimType = "name",
-            RoleClaimType = "role"
+            ClockSkew = TimeSpan.Zero
         };
 
         options.Events = new JwtBearerEvents
@@ -62,7 +55,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 {
                     context.Token = authHeader.Substring(7).Trim();
                 }
-                Console.WriteLine($"*** TOKEN RECIBIDO: {(context.Token?.Length > 30 ? context.Token.Substring(0,30)+"..." : context.Token ?? "null")} ***");
+                Console.WriteLine($"*** TOKEN RECIBIDO: {(context.Token?.Length > 40 ? context.Token.Substring(0,40)+"..." : context.Token ?? "null")} ***");
                 return Task.CompletedTask;
             },
             OnAuthenticationFailed = context =>
@@ -83,7 +76,8 @@ builder.Services.AddSingleton<AvailabilityRepository>();
 builder.Services.AddScoped<AvailabilityManager>();
 
 builder.Services.AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
+    .AddJsonOptions(options => 
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
